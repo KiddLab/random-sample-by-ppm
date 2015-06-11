@@ -4,7 +4,7 @@ Randomly sample genomic positions based on a Position Probability Matrix.
 By default, randomly choses a genomic strand.  Also includes scripts for calculating a
 PPM based on observed motifs.
 
-Assumes that motifs and PPM correspond to endonuclease cleave sites reported as in
+Assumes that motifs and PPM correspond to endonuclease cleavage sites reported as in
 Gilbert et al. 2005  (http://www.ncbi.nlm.nih.gov/pubmed/16107723).
 
 ## Usage ##
