@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-# Jeff Kidd
-# 1 June 2015
-# make random samples from genome, weighted by some PSSM
-# reads genome into memory, so be sure to have enough
+# make random samples from genome, weighted by some PPM
+# reads genome into memory, so be sure to have enough RAM!
+# assumes that are looking at L1 endonuclease cleavage pattern
 
 import sampleutils
 import sys
