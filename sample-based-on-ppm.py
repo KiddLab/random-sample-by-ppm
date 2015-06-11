@@ -65,7 +65,8 @@ for setNum in range(options.numSet):
         if sample_i % 100 == 0:
             print 'Did sample %i of %i...' % (sample_i,options.numPerSet)
         randSel = sampleutils.select_random_position_with_weights(myData)
-        outFile.write('%s\t%i\t%s\t%s\n' % (randSel['chrom'],randSel['pos'],randSel['strand'],randSel['extractedSeq']))        
+        # write output as bed file for first 3 columns
+        outFile.write('%s\t%i\t%i\t%s\t%s\n' % (randSel['chrom'],randSel['pos']-1,randSel['pos'],randSel['strand'],randSel['extractedSeq']))        
     outFile.close()
 
 
