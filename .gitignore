@@ -1,0 +1,6 @@
+*.pyc
+*.c
+*.so
+logs/
+build/
+*.cmds
