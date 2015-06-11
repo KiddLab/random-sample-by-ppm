@@ -11,16 +11,22 @@ from optparse import  OptionParser
 ###############################################################################
 USAGE = """
 sample-based-on-ppm.py --ppm <position probability matrix>  --genome <genome file to extract from> 
-                       --num <number of random samples to take>
-                       --out <outfile for positions of random samples>
+                       --outpre <prefix for random sample set files>
+                       --n_per_set <number of random samples per set>
+                       --n_sets <number of random sets to produce>
+
+For example, to make 10 sets of 50 random samples, use --n_per_set 50 --n_sets 10.
 
 """
 
 parser = OptionParser(USAGE)
 parser.add_option('--ppm',dest='ppm', help = 'position probability matrix')
 parser.add_option('--genome', dest='genome', help = 'genome fasta file for selection')
-parser.add_option('--num', dest='num',type='int', help = 'number of random samples to return')
-parser.add_option('--out', dest='outFileName', help = 'name for output file')
+parser.add_option('--outpre', dest='outFilePrefix', help = 'prefix for output file')
+
+parser.add_option('--n_sets', dest='numSet',type='int', help = 'number of random set to make')
+parser.add_option('--n_per_set', dest='numPerSet',type='int', help = 'number of random samples per set to make')
+
 
 (options, args) = parser.parse_args()
 
@@ -29,10 +35,12 @@ if options.ppm is None:
     parser.error('input ppm file name not given')
 if options.genome is None:
 	parser.error('genome fasta file not given')
-if options.outFileName is None:
-	parser.error('output file not given')
-if options.num is None:
-	parser.error('number of random sample to return not given')
+if options.outFilePrefix is None:
+	parser.error('output files prefix not given')
+if options.numSet is None:
+	parser.error('total number of sets not given')
+if options.numPerSet is None:
+	parser.error('number of random samples per set not given')
 ###############################################################################
 
 myData = {}
@@ -40,18 +48,24 @@ myData = {}
 myData['genomeFasta'] = options.genome
 myData['ppmFile'] = options.ppm
 
+
 sampleutils.initialize_ppm(myData)
 sampleutils.initialize_genome_sequences(myData)
 
 
 print 'Initialization complete, ready to sample'
-print 'Sampled locations being written to',options.outFileName
-outFile = open(options.outFileName,'w')
-for sample_i in xrange(options.num):
-    if sample_i % 100 == 0:
-        print 'Did sample %i of %i...' % (sample_i,options.num)
-    randSel = sampleutils.select_random_position_with_weights(myData)
-    outFile.write('%s\t%i\t%s\t%s\n' % (randSel['chrom'],randSel['pos'],randSel['strand'],randSel['extractedSeq']))        
-outFile.close()
+
+print 'Will make %i sets, each of which consists of %i random samples' % (options.numSet,options.numPerSet)
+
+for setNum in range(options.numSet):
+    outFileName = options.outFilePrefix + '.%i' %setNum
+    print 'Sampled locations being written to',outFileName
+    outFile = open(outFileName,'w')
+    for sample_i in xrange(options.numPerSet):
+        if sample_i % 100 == 0:
+            print 'Did sample %i of %i...' % (sample_i,options.numPerSet)
+        randSel = sampleutils.select_random_position_with_weights(myData)
+        outFile.write('%s\t%i\t%s\t%s\n' % (randSel['chrom'],randSel['pos'],randSel['strand'],randSel['extractedSeq']))        
+    outFile.close()
 
 
