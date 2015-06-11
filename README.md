@@ -7,8 +7,6 @@ PPM based on observed motifs.
 Assumes that motifs and PPM correspond to endonuclease cleave sites reported as in
 Gilbert et al. 2005  (http://www.ncbi.nlm.nih.gov/pubmed/16107723).
 
-
-
 ## Usage ##
 
 First, create a position probability matrix from a set of observed motifs.  By default,
