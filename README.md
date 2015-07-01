@@ -31,3 +31,9 @@ python sample-based-on-ppm.py \
 --n_sets 5 \
 --outpre sample100.test
 ```
+
+Optionally, include a bed file of regions to exclude placement (such as near other repeat elements)
+using --exclusionbed
+
+
+

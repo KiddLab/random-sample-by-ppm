@@ -13,6 +13,7 @@ sample-based-on-ppm.py --ppm <position probability matrix>  --genome <genome fil
                        --outpre <prefix for random sample set files>
                        --n_per_set <number of random samples per set>
                        --n_sets <number of random sets to produce>
+                       --exclusionbed <bed file of regions to exclude from sampling>
 
 For example, to make 10 sets of 50 random samples, use --n_per_set 50 --n_sets 10.
 
@@ -25,6 +26,7 @@ parser.add_option('--outpre', dest='outFilePrefix', help = 'prefix for output fi
 
 parser.add_option('--n_sets', dest='numSet',type='int', help = 'number of random set to make')
 parser.add_option('--n_per_set', dest='numPerSet',type='int', help = 'number of random samples per set to make')
+parser.add_option('--exclusionbed', dest='exclusionBed', help = 'bed file of regions to exclude from sampling',default='NONE')
 
 
 (options, args) = parser.parse_args()
@@ -47,10 +49,16 @@ myData = {}
 myData['genomeFasta'] = options.genome
 myData['ppmFile'] = options.ppm
 
+if options.exclusionBed == 'NONE':
+    myData['useExclusionRegions'] = False
+else:
+    myData['useExclusionRegions'] = True
+    myData['exclusionBedFile'] = options.exclusionBed
+    print 'Will exclude random sites that occur in file',options.exclusionBed
+
 
 sampleutils.initialize_ppm(myData)
 sampleutils.initialize_genome_sequences(myData)
-
 
 print 'Initialization complete, ready to sample'
 
@@ -65,7 +73,8 @@ for setNum in range(options.numSet):
             print 'Did sample %i of %i...' % (sample_i,options.numPerSet)
         randSel = sampleutils.select_random_position_with_weights(myData)
         # write output as bed file for first 3 columns
-        outFile.write('%s\t%i\t%i\t%s\t%s\n' % (randSel['chrom'],randSel['pos']-1,randSel['pos'],randSel['strand'],randSel['extractedSeq']))        
+        # pos+1, because pos is 0 zero based already....
+        outFile.write('%s\t%i\t%i\t%s\t%s\n' % (randSel['chrom'],randSel['pos'],randSel['pos']+1,randSel['strand'],randSel['extractedSeq']))        
     outFile.close()
 
 

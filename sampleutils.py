@@ -2,6 +2,13 @@ import sys
 import random
 
 
+#####################################################################
+def init_blank_list(listLen,element):
+    myList = []
+    for i in range(listLen):
+        myList.append(element)
+    return myList
+#####################################################################
 ##############################################################################
 # Returns complement of a bp.  If not ACGT then return same char
 def complement(c):
@@ -94,6 +101,38 @@ def initialize_genome_sequences(data):
     for i in data['chromInfo']:
         print i
     print data['lastPos']
+    
+    if data['useExclusionRegions'] is True:
+        initialize_exclusion_regions(data)
+        
+###############################################################################
+# set up set of 0,1 vectors of exclusion regions for comparison
+def initialize_exclusion_regions(data):
+    print 'setting up exclusions!'
+
+    data['exclusionLists'] = {}
+    for i in data['chromInfo']:
+        chromName = i[0]
+        chromLen = i[1]
+        data['exclusionLists'][chromName] = init_blank_list(chromLen,0)
+    print 'Initialzed blank exclusion lists for %i chromosomes' % len(data['exclusionLists'])
+
+    print 'Reading in exclusion data from',data['exclusionBedFile']
+    inFile = open(data['exclusionBedFile'],'r')
+    for line in inFile:
+       line = line.rstrip()
+       line = line.split()
+       cName = line[0]
+       b = int(line[1])
+       e = int(line[2])
+       #if not one of the chroms we are doing, just skip on over'
+       if cName in data['exclusionLists']:
+           for i in range(b,e):
+               data['exclusionLists'][cName][i] = 1
+    inFile.close()
+    print 'Exclusion list setup!'
+
+
 ###############################################################################
 #random.randint(a, b)
 #Return a random integer N such that a <= N <= b.
@@ -154,6 +193,13 @@ def select_random_position_with_weights(data):
 # extract the sequence, and figure what the score is
 def score_selected(data,randSel):
     randSel['isChosen'] = False
+    
+    # check to see if is in exclusion region
+    if data['useExclusionRegions'] is True:
+        m = data['exclusionLists'][randSel['chrom']][randSel['pos']]
+        if m != 0:
+            return
+
     if randSel['strand'] == '+':  #insert is in genome orientaiton, cut is after nuc, motif on opposite strand
         startBp = randSel['pos']
         endBp = startBp + data['ppmWidth'] # does not include last bp
@@ -177,7 +223,8 @@ def score_selected(data,randSel):
         startBp = endBp - data['ppmWidth'] # does not include last bp    
         if startBp < 0:
             return  #off end of chrom, is false
-        extractedSeq = data['genomeSeqDict'][randSel['chrom']]['seq'][startBp:endBp]
+        # so that we include the endBp    
+        extractedSeq = data['genomeSeqDict'][randSel['chrom']]['seq'][startBp+1:endBp+1]
         extractedSeq = extractedSeq.upper()
         randSel['extractedSeq'] = extractedSeq
         if 'N' in extractedSeq:
