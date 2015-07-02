@@ -35,5 +35,7 @@ python sample-based-on-ppm.py \
 Optionally, include a bed file of regions to exclude placement (such as near other repeat elements)
 using --exclusionbed
 
+Note: the exclusion list is read into genome spanning arrays, greatly increasing the memory
+footprint.  For human genome, requires >30 Gb RAM to run.
 
 
